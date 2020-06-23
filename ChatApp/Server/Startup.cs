@@ -55,6 +55,8 @@ namespace Server
             .AddEntityFrameworkStores<ChatContext>();
 
             services.AddSingleton<HubUserService>();
+
+            services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ChatContext _context, UserManager<ChatUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ChatUser> signInManager)
