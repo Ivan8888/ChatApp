@@ -24,60 +24,61 @@
 </template>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function (event) {
-        var app = new Vue({
-            el: "#chatApp",
-            data: {
+    import * as signalR from '@aspnet/signalr';
+
+    export default{
+        data(){
+            return {
                 userName: "",
                 userMessage: "",
                 connection: "",
                 messages: []
-            },
-            methods: {
-                submitCard: function () {
-                    if (this.userName && this.userMessage) {
-                        // ---------
-                        //  Call hub methods from client
-                        // ---------
-                        this.connection
-                            .invoke("SendMessage", this.userName, this.userMessage)
-                            .catch(function (err) {
-                                return console.error(err.toSting());
-                            });
-
-                        this.userName = "";
-                        this.userMessage = "";
-                    }
-                }
-            },
-            created: function () {
-                // ---------
-                // Connect to our hub
-                // ---------
-                this.connection = new signalR.HubConnectionBuilder()
-                    .withUrl("/chatHub")
-                    .configureLogging(signalR.LogLevel.Information)
-                    .build();
-                this.connection.start().catch(function (err) {
-                    return console.error(err.toSting());
-                });
-            },
-            mounted: function () {
-                // ---------
-                // Call client methods from hub
-                // ---------
-                var thisVue = this;
-                thisVue.connection.start();
-                thisVue.connection.on("ReceiveMessage", function (user, message) {
-                    thisVue.messages.push({ user, message });
-                });
             }
-        });
-    });
+        },
+        
+        methods: {
+            submitCard: function () {
+                if (this.userName && this.userMessage) {
+                    // ---------
+                    //  Call hub methods from client
+                    // ---------
+                    this.connection
+                        .invoke("SendMessage", this.userName, this.userMessage)
+                        .catch(function (err) {
+                            return console.error(err.toSting());
+                        });
+
+                    this.userName = "";
+                    this.userMessage = "";
+                }
+            }
+        },
+
+        created: function () {
+            // ---------
+            // Connect to our hub
+            // ---------
+            this.connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chatHub")
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+            this.connection.start().catch(function (err) {
+                return console.error(err.toSting());
+            });
+        },
+
+        mounted: function () {
+            // ---------
+            // Call client methods from hub
+            // ---------
+            var thisVue = this;
+            thisVue.connection.start();
+            thisVue.connection.on("ReceiveMessage", function (user, message) {
+                thisVue.messages.push({ user, message });
+            });
+        }
+    }
 </script>
-
-<script src="~/signalr.js"></script>
-
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 </style>
