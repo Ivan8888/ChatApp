@@ -38,14 +38,25 @@
         
         methods: {
             submitCard: function () {
+                console.log("before connection");
+                this.connection = new signalR.HubConnectionBuilder()
+                    .withUrl("http://localhost:60588/chathub")
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
+                this.connection.start().catch(function (err) {
+                    return console.error(err.toString());
+                });
+                console.log("after connection");
+
+                console.log("log message");
                 if (this.userName && this.userMessage) {
                     // ---------
                     //  Call hub methods from client
                     // ---------
                     this.connection
-                        .invoke("SendMessage", this.userName, this.userMessage)
+                        .invoke("MessageAll", this.userMessage, "Grupa")
                         .catch(function (err) {
-                            return console.error(err.toSting());
+                            return console.error(err.toString());
                         });
 
                     this.userName = "";
@@ -58,21 +69,30 @@
             // ---------
             // Connect to our hub
             // ---------
-            this.connection = new signalR.HubConnectionBuilder()
-                .withUrl("/chatHub")
-                .configureLogging(signalR.LogLevel.Information)
-                .build();
-            this.connection.start().catch(function (err) {
-                return console.error(err.toSting());
-            });
+            //this.connection = new signalR.HubConnectionBuilder()
+            //    .withUrl("http://localhost:60588/chathub")
+            //    .configureLogging(signalR.LogLevel.Information)
+            //    .build();
+            //this.connection.start().catch(function (err) {
+            //    return console.error(err.toString());
+            //});
         },
 
         mounted: function () {
             // ---------
             // Call client methods from hub
             // ---------
+            console.log("before connection");
+            this.connection = new signalR.HubConnectionBuilder()
+                .withUrl("http://localhost:60588/chathub")
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+            this.connection.start().catch(function (err) {
+                return console.error(err.toString());
+            });
+            console.log("after connection");
+
             var thisVue = this;
-            thisVue.connection.start();
             thisVue.connection.on("ReceiveMessage", function (user, message) {
                 thisVue.messages.push({ user, message });
             });

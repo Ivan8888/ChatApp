@@ -57,6 +57,11 @@ namespace Server
             services.AddSingleton<HubUserService>();
 
             services.AddSignalR();
+
+
+            services.AddCors(options => {
+                options.AddPolicy("FromClient", p => p.WithOrigins("http://localhost:1337"));
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ChatContext _context, UserManager<ChatUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ChatUser> signInManager)
@@ -71,6 +76,8 @@ namespace Server
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors("FromClient");
 
             app.UseRouting();
 
